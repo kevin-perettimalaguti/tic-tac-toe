@@ -69,11 +69,11 @@ def afficher_plateau():
     x, y = 50, 50
     
     # Boucle pour parcourir chaque ligne du plateau
-    for row in plateau:
+    for ligne in plateau:
         # Boucle pour parcourir chaque case de la ligne
-        for cases in row:
+        for cases in ligne:
             pygame.draw.rect(fenetre, BLACK, (x, y, case_largeur, case_hauteur), 2)
-            if cell != ' ':
+            if cases != ' ':
                 font = pygame.font.Font(None, 36)
                 texte = font.render(cases, True, BLACK)
                 fenetre.blit(texte, (x + case_largeur // 3, y + case_hauteur // 3))
@@ -81,6 +81,19 @@ def afficher_plateau():
             x += case_largeur
         x = 50
         y += case_hauteur
+        
+def verification_alignement_gagnant(jeu):
+    global taille_plateau
+    global une_case
+    
+    for v in taille_plateau:
+        if v in taille_plateau.count('X'):
+            return True
+        
+        if v in taille_plateau.count('O'):
+            return True
+        
+        
     
     
 
