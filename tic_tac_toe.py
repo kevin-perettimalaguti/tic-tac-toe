@@ -1,42 +1,51 @@
 # Importation des modules pygame
-import pygame, pygame_menu
+import pygame
 import sys
+import pygame_menu
 
-# Définition de couleurs utilisées dans le jeu
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+#///================ESTHETIQUE DU JEU======================\\\
+    
+    # Définition de couleurs utilisées dans le jeu
+NOIR = (0, 0, 0)
+BLANC = (255, 255, 255)
+ROUGE = (255, 0, 0)
+VERT = (0, 255, 0)
+BLEU = (0, 0, 255)
 BLEU_CLAIR = (102, 255, 255)
-PURPLE = (182, 48, 243)
-GREY = (170, 166, 184)
+VIOLET = (182, 48, 243)
+GRIS = (170, 166, 184)
 
 pygame.init()
 
-# Dimensions de la fenêtre
-fenetre_largeur = 700
-fenetre_hauteur = 480
+    # Dimensions de la fenêtre
+fenetre_largeur = 450
+fenetre_hauteur = 350
 fenetre = pygame.display.set_mode((fenetre_largeur, fenetre_hauteur))
 pygame.display.set_caption("Tic-Tac-Toe")
 
-# Initialisation du plateau du jeu
-largeur_plateau = 950
-hauteur_plateau = 650
-taille_plateau = largeur_plateau * hauteur_plateau
-une_case = (largeur_plateau // 3 * hauteur_plateau // 3)
+    # Initialisation du plateau du jeu
+largeur_plateau = 450
+hauteur_plateau = 350
+une_case = (largeur_plateau // 3, hauteur_plateau // 3)
 
-# Fonction pour afficher le plateau de jeu
+    # Déclaration globale du plateau
+plateau = [[' ', ' ', ' '],
+            [' ', ' ', ' '],
+            [' ', ' ', ' ']]
+
+#///================FONCTIONS NECESSAIRE POUR LE JEU======================\\\
+    
+    # Fonction pour afficher le plateau de jeu
 def afficher_plateau():
-    fenetre.fill(WHITE)  # Le fond de l'écran de jeu en blanc
+    fenetre.fill(BLANC)  # Le fond de l'écran de jeu en blanc
 
     # Ma Grille en 3x3
     for i in range(3):
         for j in range(3):
-            pygame.draw.rect(fenetre, BLACK, (i * une_case[0], j * une_case[1], une_case[0], une_case[1]), 2)
+            pygame.draw.rect(fenetre, NOIR, (i * une_case[0], j * une_case[1], une_case[0], une_case[1]), 2)
             if plateau[j][i] != ' ':
                 font = pygame.font.Font(None, 36)
-                texte = font.render(plateau[j][i], True, BLACK)
+                texte = font.render(plateau[j][i], True, NOIR)
                 fenetre.blit(texte, (i * une_case[0] + une_case[0] // 3, j * une_case[1] + une_case[1] // 3))
 
 def verification_alignement_gagnant():
@@ -60,48 +69,73 @@ def verification_alignement_gagnant():
 
     return None
 
-#///===FONCTIONS===\\\
-
-# Crée une fonction pour initialiser le plateau de jeu
+    # Fonction pour initialiser le plateau de jeu
 def initialiser_plateau():
     return [[' ', ' ', ' '],
             [' ', ' ', ' '],
             [' ', ' ', ' ']]
-
-# Crée une fonction pour vérifier si le plateau est plein
+    
+    # Fonction pour vérifier si le plateau est plein
 def plateau_plein():
     for ligne in plateau:
         if ' ' in ligne:
             return False
     return True
 
-#///===BOUCLE PRINCIPAL DU JEU===\\\
+#///================MENU======================\\\
+    
+    # Initialisation du menu principal
+menu = pygame_menu.Menu('Welcome', 450, 350, theme=pygame_menu.themes.THEME_BLUE)
+menu.add.button('Jouer', lambda: jouer_au_morpion())
+menu.add.button('Quitter', pygame_menu.events.EXIT)
 
-# Initialise le plateau de jeu
-plateau = initialiser_plateau()
+#///================FONCTION DU GAMEPLAY EN BOUCLE======================\\\
+    
+def jouer_au_morpion():
+    global plateau  # Utilise la variable globale au lieu de la déclarer localement
+    tour = 'X'  # Initialise le premier tour avec le joueur 'X'
+    en_jeu = True   
 
-# Met en place la boucle principale du jeu
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+    while en_jeu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                en_jeu = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    en_jeu = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Obtient les coordonnées de la case cliquée
+                mouseX, mouseY = event.pos
+                colonne = mouseX // une_case[0]
+                ligne = mouseY // une_case[1]
 
-    # Affiche le plateau de jeu
-    afficher_plateau()
+                # Vérifie si la case est vide avant de placer le symbole
+                if plateau[ligne][colonne] == ' ':
+                    plateau[ligne][colonne] = tour
 
-    # Vérification de l'alignement gagnant
-    gagnant = verification_alignement_gagnant()
-    if gagnant:
-        print(f'Le joueur {gagnant} a gagné!')
-        pygame.quit()
-        sys.exit()
+                    # Change le joueur à chaque tour
+                    tour = 'O' if tour == 'X' else 'X'
 
-    # Vérification si le plateau est plein
-    if plateau_plein():
-        print("Match nul!")
-        pygame.quit()
-        sys.exit()
+                    afficher_plateau()
 
-    # Mise à jour de l'affichage
-    pygame.display.flip()
+                    # Vérifie l'alignement gagnant
+                    gagnant = verification_alignement_gagnant()
+                    if gagnant:
+                        print(f'Le joueur {gagnant} a gagné!')
+                        pygame.quit()
+                        sys.exit()
+
+                    # Vérifie si le plateau est plein
+                    if plateau_plein():
+                        print("Match nul!")
+                        pygame.quit()
+                        sys.exit()
+
+                    # Mise à jour de l'affichage
+                    pygame.display.flip()
+
+    # Fermeture de pygame
+    pygame.quit()
+
+# Lancement du menu
+menu.mainloop(fenetre)
