@@ -13,9 +13,13 @@ VERT = (0, 255, 0)
 BLEU = (0, 0, 255)
 BLEU_CLAIR = (102, 255, 255)
 VIOLET = (182, 48, 243)
-GRIS = (170, 166, 184)
+GRIS = (170, 166, 184)  
 
 pygame.init()
+pygame.font.init()
+
+    # Police
+fonte_perdu = pygame.font.SysFont('arial', 45)
 
     # Dimensions de la fenêtre
 fenetre_largeur = 450
@@ -37,7 +41,7 @@ plateau = [[' ', ' ', ' '],
     
     # Fonction pour afficher le plateau de jeu
 def afficher_plateau():
-    fenetre.fill(BLANC)  # Le fond de l'écran de jeu en blanc
+    fenetre.fill(BLANC)
 
     # Ma Grille en 3x3
     for i in range(3):
@@ -46,8 +50,10 @@ def afficher_plateau():
             if plateau[j][i] != ' ':
                 font = pygame.font.Font(None, 36)
                 texte = font.render(plateau[j][i], True, NOIR)
+                # Utilise les bonnes coordonnées pour afficher le texte
                 fenetre.blit(texte, (i * une_case[0] + une_case[0] // 3, j * une_case[1] + une_case[1] // 3))
-
+                
+                
 def verification_alignement_gagnant():
     # Vérification des lignes
     for ligne in plateau:
@@ -69,6 +75,8 @@ def verification_alignement_gagnant():
 
     return None
 
+
+
     # Fonction pour initialiser le plateau de jeu
 def initialiser_plateau():
     return [[' ', ' ', ' '],
@@ -82,6 +90,28 @@ def plateau_plein():
             return False
     return True
 
+def fin_de_jeu(partie_gagnee=True):
+    global nom_joueur_actuel   
+    gagne_txt = f"Le joueur {nom_joueur_actuel} est gagnant"
+    pygame.time.delay(1000)
+    fenetre.fill(GRIS)
+
+    if partie_gagnee == True:
+        gagnant = verification_alignement_gagnant()
+        if gagnant:
+            nom_joueur_actuel = gagnant
+            label = fonte_perdu.render(gagne_txt, True, VERT)
+        else:
+            label = fonte_perdu.render("Match Nul !", True, ROUGE)
+    else:
+        label = fonte_perdu.render("Match Nul !", True, ROUGE)    
+
+    # Utilise la variable label pour blitter le texte
+    fenetre.blit(label, (fenetre_largeur // 2 - label.get_width() // 2, 65))  
+    pygame.display.update()
+
+    
+
 #///================MENU======================\\\
     
     # Initialisation du menu principal
@@ -92,50 +122,54 @@ menu.add.button('Quitter', pygame_menu.events.EXIT)
 #///================FONCTION DU GAMEPLAY EN BOUCLE======================\\\
     
 def jouer_au_morpion():
-    global plateau  # Utilise la variable globale au lieu de la déclarer localement
-    tour = 'X'  # Initialise le premier tour avec le joueur 'X'
+    global plateau, nom_joueur_actuel
+    tour = ''
     en_jeu = True   
 
     while en_jeu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 en_jeu = False
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     en_jeu = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # Obtient les coordonnées de la case cliquée
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouseX, mouseY = event.pos
-                colonne = mouseX // une_case[0]
-                ligne = mouseY // une_case[1]
 
-                # Vérifie si la case est vide avant de placer le symbole
-                if plateau[ligne][colonne] == ' ':
-                    plateau[ligne][colonne] = tour
+                for i in range(3):
+                    for j in range(3):
+                        case_x = i * une_case[0]
+                        case_y = j * une_case[1]
 
-                    # Change le joueur à chaque tour
-                    tour = 'O' if tour == 'X' else 'X'
+                        if case_x <= mouseX < case_x + une_case[0] and case_y <= mouseY < case_y + une_case[1]:
+                            plateau[j][i] = tour
+                            nom_joueur_actuel = 'X' if tour == 'O' else 'O'
+                            tour = 'O' if tour == 'X' else 'X' if tour == '' else ''
+                            afficher_plateau()
+                            gagnant = verification_alignement_gagnant()
+                            if gagnant:
+                                fin_de_jeu(partie_gagnee=True)
+                                pygame.display.flip()
+                                pygame.time.delay(2000)
+                                pygame.quit()
+                                sys.exit()
+                            if not gagnant and plateau_plein():
+                                fin_de_jeu(partie_gagnee=False)
+                                pygame.display.flip()
+                                pygame.time.delay(2000)
+                                pygame.quit()
+                                sys.exit()
 
-                    afficher_plateau()
+                            pygame.display.flip()
 
-                    # Vérifie l'alignement gagnant
-                    gagnant = verification_alignement_gagnant()
-                    if gagnant:
-                        print(f'Le joueur {gagnant} a gagné!')
-                        pygame.quit()
-                        sys.exit()
-
-                    # Vérifie si le plateau est plein
-                    if plateau_plein():
-                        print("Match nul!")
-                        pygame.quit()
-                        sys.exit()
-
-                    # Mise à jour de l'affichage
-                    pygame.display.flip()
-
-    # Fermeture de pygame
     pygame.quit()
+
+# Initialiser le plateau avant le lancement du jeu
+initialiser_plateau()
 
 # Lancement du menu
 menu.mainloop(fenetre)
+
+
+
+
