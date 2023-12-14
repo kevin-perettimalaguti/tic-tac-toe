@@ -90,24 +90,22 @@ def plateau_plein():
             return False
     return True
 
+nom_joueur_actuel = 'X'
+
 def fin_de_jeu(partie_gagnee=True):
-    global nom_joueur_actuel   
-    gagne_txt = f"Le joueur {nom_joueur_actuel} est gagnant"
     pygame.time.delay(1000)
     fenetre.fill(GRIS)
 
-    if partie_gagnee == True:
+    if partie_gagnee:
         gagnant = verification_alignement_gagnant()
         if gagnant:
-            nom_joueur_actuel = gagnant
-            label = fonte_perdu.render(gagne_txt, True, VERT)
+            label = fonte_perdu.render(f"Le joueur {gagnant} est gagnant", True, VERT)
         else:
             label = fonte_perdu.render("Match Nul !", True, ROUGE)
     else:
-        label = fonte_perdu.render("Match Nul !", True, ROUGE)    
+        label = fonte_perdu.render("Match Nul !", True, ROUGE)
 
-    # Utilise la variable label pour blitter le texte
-    fenetre.blit(label, (fenetre_largeur // 2 - label.get_width() // 2, 65))  
+    fenetre.blit(label, (fenetre_largeur // 2 - label.get_width() // 2, 65))
     pygame.display.update()
 
     
