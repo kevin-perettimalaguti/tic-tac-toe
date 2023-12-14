@@ -47,6 +47,7 @@ def ia(board, signe):
     available_moves = [(i, j) for i in range(3) for j in range(3) if board[i][j] == ' ']
     if available_moves:
         move = random.choice(available_moves)
+        print(f"IA joue au hasard : {move}")
         return move[0] * 3 + move[1]
     else:
         return False

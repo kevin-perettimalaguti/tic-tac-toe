@@ -126,7 +126,7 @@ def jouer_au_morpion_sans_ia():
 
                         if case_x <= mouseX < case_x + une_case[0] and case_y <= mouseY < case_y + une_case[1]:
                             plateau[j][i] = tour
-                            tour = 'O' if tour == 'X' else 'X' if tour == '' else ''
+                            tour = 'O' if tour == 'X' else 'X' if tour == 'O' else 'O'
                             afficher_plateau()
                             gagnant = verification_alignement_gagnant()
                             if gagnant:
@@ -135,12 +135,12 @@ def jouer_au_morpion_sans_ia():
                                 pygame.time.delay(2000)
                                 pygame.quit()
                                 sys.exit()
-                            #if not gagnant and plateau_plein():
-                                #fin_de_jeu(partie_gagnee=False)
-                                #pygame.display.flip()
-                                #pygame.time.delay(2000)
-                                #pygame.quit()
-                                #sys.exit()
+                            if plateau_plein() and not gagnant:
+                                fin_de_jeu(partie_gagnee=False)
+                                pygame.display.flip()
+                                pygame.time.delay(2000)
+                                pygame.quit()
+                                sys.exit()
 
                             pygame.display.flip()
                             
@@ -151,8 +151,6 @@ def jouer_au_morpion_avec_ia():
     global plateau
     tour = 'X'  # Initialiser le premier tour avec le joueur X
     en_jeu = True
-    
-    initialiser_plateau() # Initialiser le plateau avant le jeu
 
     while en_jeu:
         for event in pygame.event.get():
@@ -170,7 +168,7 @@ def jouer_au_morpion_avec_ia():
                         case_y = j * une_case[1]
 
                         if case_x <= mouseX < case_x + une_case[0] and case_y <= mouseY < case_y + une_case[1]:
-                            if plateau[j][i] == ' ':
+                            if plateau[j][i] == ' ' and tour == 'X':
                                 plateau[j][i] = tour
                                 afficher_plateau()
                                 gagnant = verification_alignement_gagnant()
@@ -180,13 +178,20 @@ def jouer_au_morpion_avec_ia():
                                     pygame.time.delay(2000)
                                     pygame.quit()
                                     sys.exit()
-                                if plateau_plein():
+                                if plateau_plein() and not gagnant:
                                     fin_de_jeu(partie_gagnee=False)
                                     pygame.display.flip()
                                     pygame.time.delay(2000)
                                     pygame.quit()
                                     sys.exit()
 
+                                pygame.display.flip()
+
+                                # Passer au tour suivant
+                                tour = 'O'
+
+                            # Vérifier si le jeu est toujours en cours avant que l'IA ne joue
+                            if en_jeu:
                                 # L'IA joue son coup
                                 coup_ia = ia(plateau, 'O')
                                 if coup_ia is not False:
@@ -201,7 +206,7 @@ def jouer_au_morpion_avec_ia():
                                             pygame.time.delay(2000)
                                             pygame.quit()
                                             sys.exit()
-                                        if plateau_plein():
+                                        if plateau_plein() and not gagnant:
                                             fin_de_jeu(partie_gagnee=False)
                                             pygame.display.flip()
                                             pygame.time.delay(2000)
@@ -214,6 +219,9 @@ def jouer_au_morpion_avec_ia():
                                 tour = 'X'
 
     pygame.quit()
+
+
+
 
 
 # Initialiser le plateau avant le lancement du jeu
