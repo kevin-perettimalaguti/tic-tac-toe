@@ -142,8 +142,7 @@ def jouer_au_morpion_sans_ia():
                                 pygame.quit()
                                 sys.exit()
 
-                            pygame.display.flip()
-                            
+                            pygame.display.flip()                            
                             
                             
 # Fonction principale du gameplay en boucle (pour jouer avec l'IA)
